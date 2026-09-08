@@ -12,7 +12,7 @@ TRADE READY   |   WATCH   |   NO TRADE
 
 Not BUY / SELL. The question it answers is *"is this actually a tradeable setup right now?"*
 
-<!-- SCREENSHOT: docs/screenshot-passport.png -->
+![SOLUSDT trade passport](docs/screenshot-passport.png)
 
 ## Why
 
@@ -176,7 +176,9 @@ Source: rest  |  Generated: 2026-09-08T13:22:39.184Z
 
 ## Demo
 
-<!-- VIDEO LINK -->
+Video: _link added at submission_
+
+The demo is a scripted 97-second walkthrough: open [docs/demo/demo.html](docs/demo/demo.html) in a browser and press Space. Storyboard in [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).
 
 ## Security design
 

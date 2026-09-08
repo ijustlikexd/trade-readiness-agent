@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SOLUSDT Trade Passport</title>
+<style>
+  :root{
+    --bg:#0a0e12;
+    --bg2:#0d1117;
+    --fg:#d7e0e8;
+    --dim:#7d8b96;
+    --ok:#3ddc84;
+    --warn:#ffb84d;
+    --bad:#ff5c5c;
+    --border:#1f2a33;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    width:900px;
+    background:var(--bg);
+    color:var(--fg);
+    font-family:"Cascadia Code","Consolas","SF Mono","Fira Code",monospace;
+    font-size:18px;
+  }
+  #topbar{
+    height:40px;
+    background:var(--bg2);
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    padding:0 18px;
+    font-size:15px;
+    letter-spacing:0.3px;
+    color:var(--dim);
+  }
+  #topbar .dots{display:flex; gap:6px; margin-right:14px;}
+  #topbar .dots span{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  #topbar .r{background:#ff5f56;}
+  #topbar .y{background:#ffbd2e;}
+  #topbar .g{background:#27c93f;}
+  #topbar b{color:var(--fg); font-weight:600; margin-right:6px;}
+
+  .prompt-row{padding:20px 32px 4px; font-size:18px; color:#5cc8ff;}
+  .prompt-row .prompt-sym{color:var(--dim); margin-right:6px;}
+
+  pre.block{
+    margin:0;
+    padding:8px 32px 28px;
+    white-space:pre;
+    font-size:18px;
+    line-height:1.5;
+  }
+
+  .ok{color:var(--ok); font-weight:600;}
+  .warn{color:var(--warn); font-weight:600;}
+  .bad{color:var(--bad); font-weight:600;}
+
+  .gate-block{
+    border-left:4px solid var(--warn);
+    background:rgba(255,184,77,0.08);
+    padding:6px 0 6px 14px;
+    margin:6px 0;
+    border-radius:2px;
+    -webkit-box-decoration-break:clone;
+    box-decoration-break:clone;
+  }
+</style>
+</head>
+<body>
+
+  <div id="topbar">
+    <span class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></span>
+    <b>Trade Readiness Agent</b> — Trade Passport
+  </div>
+
+  <div class="prompt-row"><span class="prompt-sym">$</span> node src/cli.js analyze SOLUSDT</div>
+
+  <pre class="block">----------------------------------------
+SOLUSDT TRADE PASSPORT
+----------------------------------------
+
+Market Regime:
+Range
+
+4H:
+Neutral
+
+1H:
+Bearish
+
+Support:
+101.34 - 103.24
+
+Resistance:
+103.80 - 105.00
+
+Entry:
+103.80 - 105.00
+
+Invalidation:
+105.38
+
+Target:
+100.22 / 98.83
+
+R:R:
+2.26
+
+Confluence:
+71 / 100 (coverage 100%)
+
+Factors:
+<span class="warn">⚠</span> HTF structure (40) - 4h neutral
+<span class="ok">✓</span> Support/Resistance (82) - zone score 0.82
+<span class="ok">✓</span> Vegas channel (100) - slope aligned, near
+<span class="warn">⚠</span> Volume (40) - volZ -0.62
+<span class="ok">✓</span> Open interest (100) - OI 1.0%
+<span class="ok">✓</span> Funding (100) - rate -0.00003
+<span class="ok">✓</span> Liquidity (100) - spread 0.97bps
+<span class="warn">⚠</span> Risk/Reward (60) - rr 2.26
+
+<span class="gate-block">Decision:
+<span class="warn">WATCH</span>
+
+Gate Reasons:
+- HTF neutral: direction from 1h only</span>
+
+Source: rest  |  Generated: 2026-09-08T13:19:44.184Z
+----------------------------------------</pre>
+
+</body>
+</html>

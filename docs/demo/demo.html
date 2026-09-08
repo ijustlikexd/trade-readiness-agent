@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Trade Readiness Agent — Demo</title>
+<style>
+  :root{
+    --bg:#0a0e12;
+    --bg2:#0d1117;
+    --fg:#d7e0e8;
+    --dim:#7d8b96;
+    --accent:#5cc8ff;
+    --ok:#3ddc84;
+    --warn:#ffb84d;
+    --bad:#ff5c5c;
+    --border:#1f2a33;
+    --card:#101820;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    width:1280px;
+    height:720px;
+    background:var(--bg);
+    color:var(--fg);
+    font-family:"Cascadia Code","Consolas","SF Mono","Fira Code",monospace;
+    font-size:18px;
+    overflow:hidden;
+    position:relative;
+  }
+  #topbar{
+    height:44px;
+    background:var(--bg2);
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    padding:0 20px;
+    font-size:16px;
+    letter-spacing:0.3px;
+    color:var(--dim);
+  }
+  #topbar b{color:var(--fg); font-weight:600; margin-right:6px;}
+  #topbar .dot{
+    width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:8px;
+  }
+  #topbar .dots{display:flex; gap:6px; margin-right:16px;}
+  #topbar .dots span{width:10px;height:10px;border-radius:50%;display:inline-block;}
+  #topbar .r{background:#ff5f56;}
+  #topbar .y{background:#ffbd2e;}
+  #topbar .g{background:#27c93f;}
+
+  #stage{
+    position:relative;
+    width:1280px;
+    height:676px;
+    padding:36px 56px;
+    overflow:hidden;
+  }
+
+  .hint{
+    position:absolute; left:0; right:0; top:50%; transform:translateY(-50%);
+    text-align:center; color:var(--dim); font-size:20px; letter-spacing:0.5px;
+  }
+
+  /* generic card scenes */
+  .card{
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    gap:18px;
+  }
+  .card.center{align-items:center; text-align:center;}
+  .card .line{opacity:0; font-size:30px; line-height:1.5; max-width:1100px;}
+  .card .sub{opacity:0; font-size:20px; color:var(--dim); max-width:1000px;}
+  .card .big{font-size:34px; font-weight:600;}
+
+  pre.block{
+    margin:0;
+    white-space:pre;
+    font-size:19px;
+    line-height:1.42;
+  }
+  .line{opacity:0; white-space:pre; line-height:26px;}
+  .line.blank{line-height:9px;}
+
+  .pp-columns{display:flex; gap:52px;}
+  .pp-col{flex:1; font-size:18px; line-height:1.3;}
+
+  .prompt-row{font-size:19px; color:var(--accent); margin-bottom:10px; white-space:pre-wrap; word-break:break-all; max-width:100%;}
+  .prompt-row .prompt-sym{color:var(--dim); margin-right:6px;}
+  .prompt-row .cursor{display:inline-block; width:9px; height:20px; background:var(--accent); vertical-align:-4px; animation:blink 1s steps(1) infinite;}
+  @keyframes blink{50%{opacity:0;}}
+
+  .term-wrap{height:100%; display:flex; flex-direction:column;}
+  .term-body{flex:1; overflow:hidden; padding-top:4px;}
+
+  .ok{color:var(--ok); font-weight:600;}
+  .warn{color:var(--warn); font-weight:600;}
+  .bad{color:var(--bad); font-weight:600;}
+
+  .gate-block{
+    border-left:4px solid transparent;
+    padding-left:14px;
+    margin-left:-14px;
+    transition:border-color .3s ease, background .3s ease;
+    border-radius:2px;
+  }
+  .gate-block.active{
+    border-left-color:var(--warn);
+    background:rgba(255,184,77,0.08);
+  }
+
+  .caption{
+    position:absolute;
+    left:56px; right:56px; bottom:22px;
+    text-align:center;
+    font-size:22px;
+    font-weight:600;
+    color:var(--fg);
+    background:rgba(10,14,18,0.85);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:12px 18px;
+    opacity:0;
+  }
+
+  .arch-block{font-size:18px; line-height:1.5; color:var(--fg);}
+  .arch-block .line{color:var(--fg);}
+  .arch-block .arrow{color:var(--dim);}
+  .arch-title{font-size:22px; color:var(--dim); margin-bottom:14px; opacity:0;}
+
+  .mcp-panel{display:flex; gap:36px; height:100%; align-items:flex-start; padding-top:10px;}
+  .mcp-col{flex:1;}
+  .mcp-col h3{font-size:18px; color:var(--dim); margin:0 0 10px 0; font-weight:600; opacity:0;}
+  .mcp-json{
+    background:var(--card); border:1px solid var(--border); border-radius:8px;
+    padding:16px 18px; font-size:17px; line-height:1.5; opacity:0; white-space:pre;
+  }
+  .mcp-cmd{margin-top:26px; font-size:17px; color:var(--accent); white-space:pre-wrap; word-break:break-all;}
+
+  #progress{
+    position:absolute;
+    right:16px; bottom:8px;
+    font-size:13px;
+    color:var(--dim);
+    letter-spacing:0.3px;
+    z-index:5;
+    background:rgba(10,14,18,0.6);
+    padding:3px 8px;
+    border-radius:6px;
+  }
+
+  #playBtn{
+    position:absolute;
+    left:16px; bottom:8px;
+    font-size:13px;
+    color:var(--bg);
+    background:var(--accent);
+    border:none;
+    border-radius:6px;
+    padding:5px 12px;
+    cursor:pointer;
+    font-family:inherit;
+    font-weight:600;
+    z-index:5;
+  }
+  #playBtn:hover{filter:brightness(1.1);}
+
+  .repo-line{font-size:24px; color:var(--dim);}
+  .repo-line b{color:var(--fg);}
+</style>
+</head>
+<body>
+
+  <div id="topbar">
+    <span class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></span>
+    <b>Trade Readiness Agent</b> — Binance Agent OS Mini Hackathon (Track A)
+  </div>
+
+  <div id="stage"></div>
+
+  <button id="playBtn">▶ Play</button>
+  <div id="progress">Scene 1 / 7 · 0:00 / 0:00</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- raw captured data (verbatim) ----------
+  var SOL_PASSPORT = "----------------------------------------\nSOLUSDT TRADE PASSPORT\n----------------------------------------\n\nMarket Regime:\nRange\n\n4H:\nNeutral\n\n1H:\nBearish\n\nSupport:\n101.34 - 103.24\n\nResistance:\n103.80 - 105.00\n\nEntry:\n103.80 - 105.00\n\nInvalidation:\n105.38\n\nTarget:\n100.22 / 98.83\n\nR:R:\n2.26\n\nConfluence:\n71 / 100 (coverage 100%)\n\nFactors:\n\u26A0 HTF structure (40) - 4h neutral\n\u2713 Support/Resistance (82) - zone score 0.82\n\u2713 Vegas channel (100) - slope aligned, near\n\u26A0 Volume (40) - volZ -0.62\n\u2713 Open interest (100) - OI 1.0%\n\u2713 Funding (100) - rate -0.00003\n\u2713 Liquidity (100) - spread 0.97bps\n\u26A0 Risk/Reward (60) - rr 2.26\n\nDecision:\nWATCH\n\nGate Reasons:\n- HTF neutral: direction from 1h only\n\nSource: rest  |  Generated: 2026-09-08T13:19:44.184Z\n----------------------------------------";
+
+  var SCAN_OUTPUT = "BTCUSDT  SHORT  WATCH  conf 63  rr 1.82  entry 78660.00-79001.10\nETHUSDT  LONG  NO TRADE  conf 69  rr 1.65  entry 2454.66-2477.49\nSOLUSDT  SHORT  WATCH  conf 71  rr 2.26  entry 103.80-105.00\n--- scanned 3, 3 ok ---";
+
+  var BTC_DECISION_EXPLANATION = "Decision:\nWATCH\n\nGate Reasons:\n- HTF neutral: direction from 1h only\n- confluence 63.2 < 70\n\nExplanation:\n**Regime:** BTCUSDT is in a Range regime, bound between 77896.07 and 82300, prompting a WATCH decision.\n\n* **Neutral Higher Timeframe:** The 4h trend is neutral with a score of 0, leaving directional bias reliant solely on the 1h timeframe.\n* **Sub-threshold Confluence:** The overall confluence score of 63.2 falls short of the 70 minimum threshold required for execution.\n* **Pending Short Setup:** A potential short plan is mapped from the 78660 to 79001.1 resistance zone targeting 77742.78 with an RR of 1.82, but requires stronger confirmation.\n\n**Risk:** A push above the 79162.9 invalidation level will negate the short setup and test higher resistance at 79446.83.";
+
+  var MCP_JSON = "{\n  \"mcpServers\": {\n    \"binance-mcp-server\": {\n      \"type\": \"http\",\n      \"url\": \"https://agent.binance.com/mcp/agentic\"\n    }\n  }\n}";
+
+  var MCP_ADD_CMD = "claude mcp add binance-mcp-server --transport http https://agent.binance.com/mcp/agentic";
+
+  var ARCH_LINES = [
+    "User \u2500 \"Analyze SOLUSDT\"",
+    "  \u2502",
+    "  \u25BC",
+    "Data provider \u2500\u2500\u2500\u2500 Binance Agent OS MCP (bearer token)",
+    "                \u2514\u2500 Binance public REST (fallback) \u2500\u25B6 Snapshot (4H/1H klines, book, funding, OI)",
+    "  \u25BC",
+    "Analysis engine   structure \u2192 SNR clusters \u2192 plan (entry/stop/targets/RR) \u2192 8-factor confluence",
+    "  \u25BC",
+    "Risk Gate         hard rules \u2192 NO TRADE \u00B7 soft rules \u2192 WATCH \u00B7 else TRADE READY",
+    "  \u25BC",
+    "LLM explanation   Gemini, \u2264120 words, cannot touch numbers or decision (template fallback)",
+    "  \u25BC",
+    "TRADE PASSPORT    text report / --json"
+  ];
+
+  // ---------- helpers ----------
+  function escapeHtml(s){
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  function colorize(line){
+    var s = escapeHtml(line);
+    s = s.replace(/^(\s*)(\u2713)/, '$1<span class="ok">\u2713</span>');
+    s = s.replace(/^(\s*)(\u26A0)/, '$1<span class="warn">\u26A0</span>');
+    s = s.replace(/^(\s*)(\u2717)/, '$1<span class="bad">\u2717</span>');
+    s = s.replace(/\bTRADE READY\b/g, '<span class="ok">TRADE READY</span>');
+    s = s.replace(/\bNO TRADE\b/g, '<span class="bad">NO TRADE</span>');
+    s = s.replace(/\bWATCH\b/g, '<span class="warn">WATCH</span>');
+    return s;
+  }
+
+  function el(tag, className, html){
+    var e = document.createElement(tag);
+    if (className) e.className = className;
+    if (html !== undefined) e.innerHTML = html;
+    return e;
+  }
+
+  // Build a set of hidden line divs for `lines`, appended to `container`
+  // (optionally wrapping index ranges in a bordered wrapper div).
+  // Returns {events, wrappers} where events reveal each line at startAt + idx*msPerLine.
+  function buildLines(container, lines, opts){
+    opts = opts || {};
+    var msPerLine = opts.msPerLine || 40;
+    var startAt = opts.startAt || 0;
+    var wrapRanges = opts.wrapRanges || [];
+    var els = [];
+    var wrappers = {};
+    var i = 0;
+    while (i < lines.length){
+      var wrap = null;
+      for (var w = 0; w < wrapRanges.length; w++){
+        if (wrapRanges[w].start === i){ wrap = wrapRanges[w]; break; }
+      }
+      if (wrap){
+        var wrapper = el('div', wrap.className);
+        for (var j = wrap.start; j <= wrap.end; j++){
+          var d = el('div', 'line' + (lines[j] === '' ? ' blank' : ''));
+          wrapper.appendChild(d);
+          els.push(d);
+        }
+        container.appendChild(wrapper);
+        wrappers[wrap.className] = wrapper;
+        i = wrap.end + 1;
+      } else {
+        var dd = el('div', 'line' + (lines[i] === '' ? ' blank' : ''));
+        container.appendChild(dd);
+        els.push(dd);
+        i++;
+      }
+    }
+    var events = els.map(function(node, idx){
+      return {
+        at: startAt + idx * msPerLine,
+        fn: function(){
+          node.innerHTML = colorize(lines[idx]) || '&nbsp;';
+          node.style.opacity = 1;
+        }
+      };
+    });
+    return { events: events, wrappers: wrappers, els: els };
+  }
+
+  // Build a typed command prompt. Returns {row, events}
+  function buildPrompt(container, cmdText, opts){
+    opts = opts || {};
+    var msPerChar = opts.msPerChar || 40;
+    var startAt = opts.startAt || 0;
+    var row = el('div', 'prompt-row');
+    var sym = el('span', 'prompt-sym', '$');
+    var textSpan = el('span', 'cmd-text', '');
+    var cursor = el('span', 'cursor', '');
+    row.appendChild(sym);
+    row.appendChild(document.createTextNode(' '));
+    row.appendChild(textSpan);
+    row.appendChild(cursor);
+    container.appendChild(row);
+    var events = [];
+    for (var k = 1; k <= cmdText.length; k++){
+      (function(k){
+        events.push({
+          at: startAt + k * msPerChar,
+          fn: function(){ textSpan.textContent = cmdText.slice(0, k); }
+        });
+      })(k);
+    }
+    return { row: row, events: events };
+  }
+
+  function fadeInEvent(node, at){
+    return { at: at, fn: function(){ node.style.transition = 'opacity .5s ease'; node.style.opacity = 1; } };
+  }
+
+  // ---------- scenes ----------
+  var scenes = [];
+
+  // Scene 1: problem statement card
+  scenes.push({
+    name: 'problem',
+    duration: 10000,
+    build: function(stage){
+      var card = el('div', 'card center');
+      var l1 = el('div', 'line', 'AI trading agents are opaque: the model <i>feels</i> a level.');
+      var l2 = el('div', 'line big', 'This one can\u2019t.');
+      card.appendChild(l1);
+      card.appendChild(l2);
+      stage.appendChild(card);
+      return [ fadeInEvent(l1, 300), fadeInEvent(l2, 1500) ];
+    }
+  });
+
+  // Scene 2: architecture block typed out
+  scenes.push({
+    name: 'architecture',
+    duration: 15000,
+    build: function(stage){
+      var wrap = el('div', '', '');
+      wrap.style.height = '100%';
+      wrap.style.display = 'flex';
+      wrap.style.flexDirection = 'column';
+      wrap.style.justifyContent = 'center';
+      var title = el('div', 'arch-title', 'Architecture');
+      var block = el('div', 'arch-block');
+      wrap.appendChild(title);
+      wrap.appendChild(block);
+      stage.appendChild(wrap);
+      var events = [ fadeInEvent(title, 100) ];
+      var msPerLine = 160;
+      ARCH_LINES.forEach(function(line, idx){
+        var d = el('div', 'line', colorize(line));
+        block.appendChild(d);
+        events.push(fadeInEvent(d, 400 + idx * msPerLine));
+      });
+      return events;
+    }
+  });
+
+  // Scene 3: analyze SOLUSDT -> passport, then highlight gate+decision
+  scenes.push({
+    name: 'analyzeSOL',
+    duration: 22000,
+    build: function(stage){
+      var wrap = el('div', 'term-wrap');
+      var top = el('div');
+      var body = el('div', 'term-body');
+      wrap.appendChild(top);
+      wrap.appendChild(body);
+      stage.appendChild(wrap);
+
+      var cmd = 'node src/cli.js analyze SOLUSDT';
+      var promptRes = buildPrompt(top, cmd, { msPerChar: 40, startAt: 0 });
+      var typeEnd = 200 + cmd.length * 40;
+
+      var columns = el('div', 'pp-columns');
+      var leftCol = el('pre', 'block pp-col');
+      var rightCol = el('pre', 'block pp-col');
+      columns.appendChild(leftCol);
+      columns.appendChild(rightCol);
+      body.appendChild(columns);
+
+      var lines = SOL_PASSPORT.split('\n');
+      var mid = 26; // split header/zones (left) from factors/decision/gate (right)
+      var leftLines = lines.slice(0, mid);
+      var rightLines = lines.slice(mid);
+      // "Decision:" / "WATCH" / "" / "Gate Reasons:" / "- HTF neutral..." within rightLines
+      var gateStart = lines.indexOf('Decision:') - mid;
+      var gateEnd = gateStart + 4;
+
+      var leftRes = buildLines(leftCol, leftLines, { msPerLine: 40, startAt: typeEnd + 300 });
+      var rightRes = buildLines(rightCol, rightLines, {
+        msPerLine: 40,
+        startAt: typeEnd + 300 + mid * 40,
+        wrapRanges: [{ start: gateStart, end: gateEnd, className: 'gate-block' }]
+      });
+
+      var printEnd = typeEnd + 300 + lines.length * 40;
+      var gateBlock = rightRes.wrappers['gate-block'];
+
+      var caption = el('div', 'caption', 'The LLM cannot override the Risk Gate');
+      stage.appendChild(caption);
+
+      var highlightAt = printEnd + 1800;
+      var highlightEnd = highlightAt + 4000;
+
+      var events = promptRes.events.concat(leftRes.events, rightRes.events);
+      events.push({ at: highlightAt, fn: function(){
+        gateBlock.classList.add('active');
+        caption.style.transition = 'opacity .4s ease';
+        caption.style.opacity = 1;
+      }});
+      events.push({ at: highlightEnd, fn: function(){
+        gateBlock.classList.remove('active');
+        caption.style.opacity = 0;
+      }});
+      return events;
+    }
+  });
+
+  // Scene 4: scan output
+  scenes.push({
+    name: 'scan',
+    duration: 12000,
+    build: function(stage){
+      var wrap = el('div', 'term-wrap');
+      var top = el('div');
+      var body = el('div', 'term-body');
+      wrap.appendChild(top);
+      wrap.appendChild(body);
+      stage.appendChild(wrap);
+
+      var cmd = 'node src/cli.js scan';
+      var promptRes = buildPrompt(top, cmd, { msPerChar: 40, startAt: 0 });
+      var typeEnd = 200 + cmd.length * 40;
+
+      var pre = el('pre', 'block');
+      body.appendChild(pre);
+      var lines = SCAN_OUTPUT.split('\n');
+      var linesRes = buildLines(pre, lines, { msPerLine: 40, startAt: typeEnd + 300 });
+
+      return promptRes.events.concat(linesRes.events);
+    }
+  });
+
+  // Scene 5: analyze BTCUSDT (LLM) -> Decision -> Explanation only
+  scenes.push({
+    name: 'analyzeBTCllm',
+    duration: 14000,
+    build: function(stage){
+      var wrap = el('div', 'term-wrap');
+      var top = el('div');
+      var body = el('div', 'term-body');
+      wrap.appendChild(top);
+      wrap.appendChild(body);
+      stage.appendChild(wrap);
+
+      var cmd = 'node src/cli.js analyze BTCUSDT';
+      var promptRes = buildPrompt(top, cmd, { msPerChar: 40, startAt: 0 });
+      var typeEnd = 200 + cmd.length * 40;
+
+      var pre = el('pre', 'block');
+      body.appendChild(pre);
+      var lines = BTC_DECISION_EXPLANATION.split('\n');
+      var linesRes = buildLines(pre, lines, { msPerLine: 40, startAt: typeEnd + 300 });
+      var printEnd = typeEnd + 300 + lines.length * 40;
+
+      var caption = el('div', 'caption', 'Gemini explains. The engine decided.');
+      stage.appendChild(caption);
+
+      var events = promptRes.events.concat(linesRes.events);
+      events.push(fadeInEvent(caption, printEnd + 1200));
+      return events;
+    }
+  });
+
+  // Scene 6: Agent OS / .mcp.json card
+  scenes.push({
+    name: 'agentos',
+    duration: 14000,
+    build: function(stage){
+      var panel = el('div', 'mcp-panel');
+      var col1 = el('div', 'mcp-col');
+      var h1 = el('h3', '', '.mcp.json');
+      var json = el('div', 'mcp-json', escapeHtml(MCP_JSON));
+      col1.appendChild(h1);
+      col1.appendChild(json);
+
+      var col2 = el('div', 'mcp-col');
+      var h2 = el('h3', '', 'Add the Binance MCP server');
+      var cmdWrap = el('div');
+      var promptRes = buildPrompt(cmdWrap, MCP_ADD_CMD, { msPerChar: 25, startAt: 900 });
+      col2.appendChild(h2);
+      col2.appendChild(cmdWrap);
+
+      panel.appendChild(col1);
+      panel.appendChild(col2);
+      stage.appendChild(panel);
+
+      var caption = el('div', 'caption', 'Read-only permissions');
+      stage.appendChild(caption);
+
+      var events = [
+        fadeInEvent(h1, 100),
+        fadeInEvent(json, 300),
+        fadeInEvent(h2, 700)
+      ].concat(promptRes.events);
+
+      var cmdEnd = 900 + MCP_ADD_CMD.length * 25;
+      events.push(fadeInEvent(caption, cmdEnd + 900));
+      return events;
+    }
+  });
+
+  // Scene 7: closing card
+  scenes.push({
+    name: 'closing',
+    duration: 10000,
+    build: function(stage){
+      var card = el('div', 'card center');
+      var l1 = el('div', 'repo-line line', '<b>github.com/ijustlikexd/trade-readiness-agent</b>');
+      var l2 = el('div', 'repo-line line', 'zero deps &middot; 56 unit tests &middot; every run persisted');
+      card.appendChild(l1);
+      card.appendChild(l2);
+      stage.appendChild(card);
+      return [ fadeInEvent(l1, 300), fadeInEvent(l2, 1300) ];
+    }
+  });
+
+  // ---------- scheduler ----------
+  var stage = document.getElementById('stage');
+  var progressEl = document.getElementById('progress');
+  var playBtn = document.getElementById('playBtn');
+
+  var TOTAL_MS = scenes.reduce(function(sum, s){ return sum + s.duration; }, 0);
+  console.log('Total autoplay duration: ' + (TOTAL_MS / 1000).toFixed(1) + 's');
+
+  var sceneIndex = 0;
+  var elapsed = 0;
+  var isPlaying = false;
+  var lastTs = null;
+  var currentEvents = [];
+  var firedCount = 0;
+  var everStarted = false;
+
+  function fmt(ms){
+    var s = Math.floor(ms / 1000);
+    var m = Math.floor(s / 60);
+    var r = s % 60;
+    return m + ':' + (r < 10 ? '0' : '') + r;
+  }
+
+  function elapsedTotal(){
+    var sum = 0;
+    for (var i = 0; i < sceneIndex; i++) sum += scenes[i].duration;
+    return sum + elapsed;
+  }
+
+  function updateProgress(){
+    progressEl.textContent = 'Scene ' + (sceneIndex + 1) + ' / ' + scenes.length +
+      ' \u00B7 ' + fmt(elapsedTotal()) + ' / ' + fmt(TOTAL_MS);
+    playBtn.textContent = isPlaying ? '\u23F8 Pause' : '\u25B6 Play';
+  }
+
+  function loadScene(idx, jump){
+    idx = Math.max(0, Math.min(scenes.length - 1, idx));
+    sceneIndex = idx;
+    elapsed = 0;
+    firedCount = 0;
+    stage.innerHTML = '';
+    var scene = scenes[sceneIndex];
+    currentEvents = scene.build(stage) || [];
+    currentEvents.sort(function(a, b){ return a.at - b.at; });
+    if (jump){
+      for (var i = 0; i < currentEvents.length; i++) currentEvents[i].fn();
+      firedCount = currentEvents.length;
+      elapsed = scene.duration;
+    }
+    updateProgress();
+  }
+
+  function tick(ts){
+    requestAnimationFrame(tick);
+    if (!isPlaying){ lastTs = null; return; }
+    if (lastTs == null){ lastTs = ts; return; }
+    var dt = ts - lastTs;
+    lastTs = ts;
+    elapsed += dt;
+    while (firedCount < currentEvents.length && currentEvents[firedCount].at <= elapsed){
+      currentEvents[firedCount].fn();
+      firedCount++;
+    }
+    var scene = scenes[sceneIndex];
+    if (elapsed >= scene.duration){
+      if (sceneIndex >= scenes.length - 1){
+        isPlaying = false;
+      } else {
+        loadScene(sceneIndex + 1, false);
+      }
+    }
+    updateProgress();
+  }
+  requestAnimationFrame(tick);
+
+  function togglePlay(){
+    isPlaying = !isPlaying;
+    if (isPlaying){
+      lastTs = null;
+      if (!everStarted){
+        everStarted = true;
+      }
+    }
+    updateProgress();
+  }
+
+  function stepScene(delta){
+    isPlaying = false;
+    loadScene(sceneIndex + delta, true);
+  }
+
+  playBtn.addEventListener('click', togglePlay);
+
+  window.addEventListener('keydown', function(e){
+    if (e.code === 'Space'){
+      e.preventDefault();
+      togglePlay();
+    } else if (e.code === 'ArrowRight'){
+      e.preventDefault();
+      stepScene(1);
+    } else if (e.code === 'ArrowLeft'){
+      e.preventDefault();
+      stepScene(-1);
+    }
+  });
+
+  // initial static state
+  loadScene(0, false);
+})();
+</script>
+</body>
+</html>
