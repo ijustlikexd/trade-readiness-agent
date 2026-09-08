@@ -176,7 +176,7 @@ Source: rest  |  Generated: 2026-09-08T13:22:39.184Z
 
 ## Demo
 
-Video: _link added at submission_
+Video: https://youtu.be/z1QdQXVmum8
 
 The demo is a scripted 97-second walkthrough: open [docs/demo/demo.html](docs/demo/demo.html) in a browser and press Space. Storyboard in [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).
 
