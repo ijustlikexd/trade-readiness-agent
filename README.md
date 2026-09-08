@@ -81,7 +81,7 @@ Two ways to plug the agent into Agent OS:
    # then /mcp → Authenticate → read-only permissions
    ```
 
-<!-- SCREENSHOT: docs/screenshot-mcp.png -->
+![Binance MCP server connected](docs/screenshot-mcp.png)
 
 ## Example output
 
