@@ -7,3 +7,8 @@
 - Official links: https://www.binance.com/en/square/post/362885563835358 · MCP endpoint https://agent.binance.com/mcp/agentic
 - Ineligible regions: US, UK, EEA, HK, SG and Binance-restricted jurisdictions.
 - Post-hackathon direction: abstract IDataProvider / IAnalysisEngine / IRiskEngine / IInferenceProvider / IExecutionProvider; add Bybit/OKX, other LLMs, confirmed execution.
+
+## Submission record (2026-09-08)
+- Repo: https://github.com/ijustlikexd/trade-readiness-agent
+- Demo video: https://youtu.be/z1QdQXVmum8
+- X quote-repost: https://x.com/HX1236654982511/status/2097321874762182964
