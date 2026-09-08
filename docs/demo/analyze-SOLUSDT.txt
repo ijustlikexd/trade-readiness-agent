@@ -1,0 +1,52 @@
+----------------------------------------
+SOLUSDT TRADE PASSPORT
+----------------------------------------
+
+Market Regime:
+Range
+
+4H:
+Neutral
+
+1H:
+Bearish
+
+Support:
+101.34 - 103.24
+
+Resistance:
+103.80 - 105.00
+
+Entry:
+103.80 - 105.00
+
+Invalidation:
+105.38
+
+Target:
+100.22 / 98.83
+
+R:R:
+2.26
+
+Confluence:
+71 / 100 (coverage 100%)
+
+Factors:
+⚠ HTF structure (40) - 4h neutral
+✓ Support/Resistance (82) - zone score 0.82
+✓ Vegas channel (100) - slope aligned, near
+⚠ Volume (40) - volZ -0.62
+✓ Open interest (100) - OI 1.0%
+✓ Funding (100) - rate -0.00003
+✓ Liquidity (100) - spread 0.97bps
+⚠ Risk/Reward (60) - rr 2.26
+
+Decision:
+WATCH
+
+Gate Reasons:
+- HTF neutral: direction from 1h only
+
+Source: rest  |  Generated: 2026-09-08T13:19:44.184Z
+----------------------------------------

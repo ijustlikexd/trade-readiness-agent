@@ -1,0 +1,4 @@
+BTCUSDT  SHORT  WATCH  conf 63  rr 1.82  entry 78660.00-79001.10
+ETHUSDT  LONG  NO TRADE  conf 69  rr 1.65  entry 2454.66-2477.49
+SOLUSDT  SHORT  WATCH  conf 71  rr 2.26  entry 103.80-105.00
+--- scanned 3, 3 ok ---

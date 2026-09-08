@@ -1,0 +1,62 @@
+----------------------------------------
+BTCUSDT TRADE PASSPORT
+----------------------------------------
+
+Market Regime:
+Range
+
+4H:
+Neutral
+
+1H:
+Bearish
+
+Support:
+78120.74 - 78600.00
+
+Resistance:
+78660.00 - 79001.10
+
+Entry:
+78660.00 - 79001.10
+
+Invalidation:
+79162.90
+
+Target:
+77742.78 / 76992.95
+
+R:R:
+1.82
+
+Confluence:
+63 / 100 (coverage 100%)
+
+Factors:
+⚠ HTF structure (40) - 4h neutral
+⚠ Support/Resistance (66) - zone score 0.66
+⚠ Vegas channel (55) - slope aligned, far
+⚠ Volume (65) - volZ 0.93
+✓ Open interest (100) - OI 1.6%
+✓ Funding (100) - rate -0.00010
+✓ Liquidity (100) - spread 0.00bps
+⚠ Risk/Reward (40) - rr 1.82
+
+Decision:
+WATCH
+
+Gate Reasons:
+- HTF neutral: direction from 1h only
+- confluence 63.2 < 70
+
+Explanation:
+**Regime:** BTCUSDT is in a Range regime, bound between 77896.07 and 82300, prompting a WATCH decision.
+
+* **Neutral Higher Timeframe:** The 4h trend is neutral with a score of 0, leaving directional bias reliant solely on the 1h timeframe.
+* **Sub-threshold Confluence:** The overall confluence score of 63.2 falls short of the 70 minimum threshold required for execution.
+* **Pending Short Setup:** A potential short plan is mapped from the 78660 to 79001.1 resistance zone targeting 77742.78 with an RR of 1.82, but requires stronger confirmation.
+
+**Risk:** A push above the 79162.9 invalidation level will negate the short setup and test higher resistance at 79446.83.
+
+Source: rest  |  Generated: 2026-09-08T13:22:39.184Z
+----------------------------------------

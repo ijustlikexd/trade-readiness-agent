@@ -96,7 +96,7 @@ function guardDecision(text, result) {
 }
 
 async function explain(result, opts = {}) {
-  const { model, apiKey, timeoutMs = 20000 } = opts;
+  const { model, apiKey, timeoutMs = 45000 } = opts;
   if (!apiKey || !model) {
     return { text: templateFallback(result), source: "template" };
   }

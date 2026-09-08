@@ -51,7 +51,7 @@ Details and every threshold: [docs/SPEC.md](docs/SPEC.md).
 ## Install
 
 ```bash
-git clone <this repo>
+git clone https://github.com/ijustlikexd/trade-readiness-agent.git
 cd trade-readiness-agent
 cp .env.example .env        # add GEMINI_API_KEY (optional) and BINANCE_MCP_TOKEN (optional)
 node -v                     # >= 18, zero npm dependencies
@@ -62,7 +62,7 @@ node -v                     # >= 18, zero npm dependencies
 ```bash
 node src/cli.js analyze SOLUSDT            # full passport with LLM explanation
 node src/cli.js analyze BTCUSDT --no-llm   # deterministic only
-node src/cli.js analyze ETHUSDT --json     # machine-readable Result
+node src/cli.js analyze ETHUSDT --json     # {result, explanation} JSON
 node src/cli.js scan                       # BTC / ETH / SOL one-liners
 npm test                                   # pure unit tests, no network
 ```
@@ -85,7 +85,94 @@ Two ways to plug the agent into Agent OS:
 
 ## Example output
 
-<!-- PASTE real output here -->
+`node src/cli.js analyze SOLUSDT --no-llm`
+
+```text
+----------------------------------------
+SOLUSDT TRADE PASSPORT
+----------------------------------------
+
+Market Regime:
+Range
+
+4H:
+Neutral
+
+1H:
+Bearish
+
+Support:
+101.34 - 103.24
+
+Resistance:
+103.80 - 105.00
+
+Entry:
+103.80 - 105.00
+
+Invalidation:
+105.38
+
+Target:
+100.22 / 98.83
+
+R:R:
+2.26
+
+Confluence:
+71 / 100 (coverage 100%)
+
+Factors:
+⚠ HTF structure (40) - 4h neutral
+✓ Support/Resistance (82) - zone score 0.82
+✓ Vegas channel (100) - slope aligned, near
+⚠ Volume (40) - volZ -0.62
+✓ Open interest (100) - OI 1.0%
+✓ Funding (100) - rate -0.00003
+✓ Liquidity (100) - spread 0.97bps
+⚠ Risk/Reward (60) - rr 2.26
+
+Decision:
+WATCH
+
+Gate Reasons:
+- HTF neutral: direction from 1h only
+
+Source: rest  |  Generated: 2026-09-08T13:19:44.184Z
+----------------------------------------
+```
+
+`node src/cli.js scan --no-llm`
+
+```text
+BTCUSDT  SHORT  WATCH  conf 63  rr 1.82  entry 78660.00-79001.10
+ETHUSDT  LONG  NO TRADE  conf 69  rr 1.65  entry 2454.66-2477.49
+SOLUSDT  SHORT  WATCH  conf 71  rr 2.26  entry 103.80-105.00
+--- scanned 3, 3 ok ---
+```
+
+With Gemini enabled the passport ends with a short explanation. The engine decided first; the model only narrates:
+
+```text
+Decision:
+WATCH
+
+Gate Reasons:
+- HTF neutral: direction from 1h only
+- confluence 63.2 < 70
+
+Explanation:
+**Regime:** BTCUSDT is in a Range regime, bound between 77896.07 and 82300, prompting a WATCH decision.
+
+* **Neutral Higher Timeframe:** The 4h trend is neutral with a score of 0, leaving directional bias reliant solely on the 1h timeframe.
+* **Sub-threshold Confluence:** The overall confluence score of 63.2 falls short of the 70 minimum threshold required for execution.
+* **Pending Short Setup:** A potential short plan is mapped from the 78660 to 79001.1 resistance zone targeting 77742.78 with an RR of 1.82, but requires stronger confirmation.
+
+**Risk:** A push above the 79162.9 invalidation level will negate the short setup and test higher resistance at 79446.83.
+
+Source: rest  |  Generated: 2026-09-08T13:22:39.184Z
+----------------------------------------
+```
 
 ## Demo
 
